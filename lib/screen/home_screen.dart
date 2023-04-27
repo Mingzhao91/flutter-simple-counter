@@ -1,26 +1,8 @@
 import 'package:flutter/material.dart';
+import '../bloc/bloc_imports.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int counterValue = 0;
-
-  void increaseNumber() {
-    setState(() {
-      counterValue++;
-    });
-  }
-
-  void decreaseNumber() {
-    setState(() {
-      counterValue--;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +15,32 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              child: Center(
-                  child: Text(
-                'Counter value: $counterValue',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              )),
+            Center(
+              child: BlocConsumer<CounterBloc, CounterState>(
+                listener: (context, state) {
+                  if (state is IncrementSate) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Successfully Increased'),
+                        duration: Duration(milliseconds: 300),
+                      ),
+                    );
+                  } else if (state is DecrementSate) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Successfully Decreased'),
+                        duration: Duration(milliseconds: 300),
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return Text(
+                    'Counter value: ${state.counterValue}',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  );
+                },
+              ),
             ),
             SizedBox(
               height: 20,
@@ -50,7 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => decreaseNumber(),
+                      onPressed: () => context
+                          .read<CounterBloc>()
+                          .add(CounterDecrementEvent()),
                       icon: Icon(Icons.remove),
                       label: Text('Decrease'),
                     ),
@@ -60,7 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => increaseNumber(),
+                      onPressed: () => context
+                          .read<CounterBloc>()
+                          .add(CounterIncrementEvent()),
                       icon: Icon(Icons.add),
                       label: Text('Increase'),
                     ),
