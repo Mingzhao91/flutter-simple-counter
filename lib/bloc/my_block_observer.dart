@@ -25,3 +25,5 @@ class MyBlocObserver extends BlocObserver {
     print(transition);
   }
 }
+
+print('fdafdas')
